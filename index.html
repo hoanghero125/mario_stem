@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mario STEM – Vương Quốc Nấm</title>
+  <title>Mario STEM – Hộ Chiếu Xanh</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Courier New',monospace;overflow:hidden;user-select:none}
-    canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;position:fixed;top:0;left:0;z-index:2}
+    body{background:#228b22;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Courier New',monospace;overflow:hidden;user-select:none}
+    canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;position:fixed;z-index:2}
 
     /* ── overlay ── */
     #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;background:rgba(0,0,0,.35)}
@@ -98,7 +98,7 @@
     #mctrl{position:fixed;bottom:0;left:0;right:0;height:160px;display:none;align-items:center;justify-content:space-between;padding:0 24px;z-index:5}
     .mrow{display:flex;gap:12px;align-items:center}
     .mbtn{background:none;border:3px solid rgba(255,255,255,.6);color:#fff;width:120px;height:120px;font-size:3rem;cursor:pointer;border-radius:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-    #bg-scene{position:fixed;inset:0;z-index:1;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges}
+    #bg-scene{position:fixed;z-index:1;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges;overflow:hidden}
     #bg-scene svg{width:100%;height:100%;position:absolute;inset:0;image-rendering:pixelated}
   </style>
 </head>
@@ -252,7 +252,7 @@
 <div id="overlay">
   <!-- INTRO -->
   <div class="screen" id="sIntro">
-    <h1>🍄 Vương Quốc Nấm</h1>
+    <h1>🌿 Hộ Chiếu Xanh</h1>
     <div class="sub">Mario STEM · Trạm Tin học</div>
     <input id="iName"  type="text" placeholder="Họ và tên" maxlength="40" autocomplete="name">
     <input id="iClass" type="text" placeholder="Lớp (VD: 7A1)" maxlength="20">
@@ -265,15 +265,15 @@
     <div class="sub" id="sPlayerLbl"></div>
     <div class="wgrid">
       <div class="wcard" id="wc1" onclick="G.enterWorld(1)">
-        <div class="wi">🍄</div><h3>World 1</h3><p>Đồng cỏ Xanh</p>
+        <div class="wi">📊</div><h3>Vùng Dữ Liệu</h3><p>Phân loại &amp; Nhận thức</p>
         <div class="ws" id="ws1"></div>
       </div>
       <div class="wcard" id="wc2" onclick="G.enterWorld(2)">
-        <div class="wi">🏰</div><h3>World 2</h3><p>Lâu đài Bowser</p>
+        <div class="wi">🔐</div><h3>Vùng Giải Mã</h3><p>Số học &amp; Nhị phân</p>
         <div class="ws" id="ws2"></div>
       </div>
       <div class="wcard" id="wc3" onclick="G.enterWorld(3)">
-        <div class="wi">⭐</div><h3>World 3</h3><p>Thiên hà Sao</p>
+        <div class="wi">⚙️</div><h3>Vùng Thuật Toán</h3><p>Sắp xếp &amp; Lập trình</p>
         <div class="ws" id="ws3"></div>
       </div>
     </div>

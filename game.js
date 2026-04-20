@@ -7,9 +7,25 @@ const G = (() => {
   cv.width = CW; cv.height = CH;
 
   function resize() {
-    const ctrlH = window.matchMedia('(pointer:coarse)').matches ? 160 : 0;
-    cv.style.width  = window.innerWidth + 'px';
-    cv.style.height = (window.innerHeight - ctrlH) + 'px';
+    const touch  = window.matchMedia('(pointer:coarse)').matches;
+    const ctrlH  = touch ? 160 : 0;
+    const availW = window.innerWidth;
+    const availH = window.innerHeight - ctrlH;
+    const scale  = Math.min(availW / CW, availH / CH);
+    const cw     = Math.floor(scale * CW);
+    const ch     = Math.floor(scale * CH);
+    const cl     = Math.floor((availW - cw) / 2);
+    cv.style.width  = cw + 'px';
+    cv.style.height = ch + 'px';
+    cv.style.left   = cl + 'px';
+    cv.style.top    = '0px';
+    const bg = document.getElementById('bg-scene');
+    if (bg) {
+      bg.style.left   = cl + 'px';
+      bg.style.top    = '0px';
+      bg.style.width  = cw + 'px';
+      bg.style.height = ch + 'px';
+    }
   }
   window.addEventListener('resize', resize);
   resize();
@@ -28,72 +44,72 @@ const G = (() => {
 
   // ── Questions ─────────────────────────────────────────────
   const W1Q = [
-    {ey:'World 1 · Phân loại rác',q:'Sau giờ ra chơi, Minh nhìn thấy một chai nhựa đã uống hết nước và được rửa sạch. Theo em, Minh nên bỏ chai nhựa đó vào đâu để bảo vệ môi trường?',o:['Thùng rác hữu cơ','Thùng rác tái chế','Thùng rác nguy hại'],c:1},
-    {ey:'World 1 · Phân loại rác',q:'Trong giờ ăn nhẹ, Lan ăn xong một quả chuối và còn lại vỏ chuối. Theo em, Lan nên bỏ vỏ chuối vào loại thùng rác nào là phù hợp nhất?',o:['Thùng rác hữu cơ','Thùng rác tái chế','Thùng rác nguy hại'],c:0},
-    {ey:'World 1 · Phân loại rác',q:'Khi dọn bàn học ở nhà, Nam phát hiện một viên pin cũ đã hết điện. Theo em, Nam nên xử lý viên pin đó như thế nào để an toàn cho môi trường?',o:['Bỏ vào thùng rác nguy hại','Bỏ vào thùng rác hữu cơ','Bỏ chung với giấy vụn'],c:0},
-    {ey:'World 1 · Phân loại rác',q:'Ở lớp học, cô giáo nhắc học sinh thu gom giấy báo cũ và giấy in một mặt để tái sử dụng hoặc tái chế. Theo em, loại rác này nên được bỏ vào đâu?',o:['Thùng rác tái chế','Thùng rác hữu cơ','Thùng rác nguy hại'],c:0},
-    {ey:'World 1 · Phân loại rác',q:'Khi dọn dẹp nhà kho, bố của An tìm thấy một bóng đèn bị vỡ. Theo em, gia đình An nên phân loại bóng đèn này vào nhóm rác nào?',o:['Rác tái chế','Rác hữu cơ','Rác nguy hại'],c:2},
-    {ey:'World 1 · Hành động xanh',q:'Sau khi uống nước xong, một bạn học sinh định vứt cốc nhựa ngay xuống sân trường vì nghĩ rằng lao công sẽ dọn sau. Theo em, bạn học sinh đó nên làm gì là đúng nhất?',o:['Để nguyên trên ghế đá','Bỏ đúng nơi quy định hoặc đúng thùng phân loại','Ném vào bồn cây cho khuất mắt'],c:1},
-    {ey:'World 1 · Hành động xanh',q:'Trong khi rửa tay, Hùng thấy nước vẫn chảy mạnh dù mình đã rửa xong. Theo em, việc Hùng nên làm ngay lúc đó là gì?',o:['Để nước chảy tiếp cho sạch bồn rửa','Khóa vòi nước lại để tiết kiệm nước','Bỏ đi ngay vì không phải việc của mình'],c:1},
-    {ey:'World 1 · Hành động xanh',q:'Một lớp học muốn giảm lượng rác nhựa dùng một lần trong tuần lễ Trường học Xanh. Theo em, việc làm nào dưới đây là phù hợp nhất?',o:['Mỗi bạn mang theo bình nước cá nhân','Mỗi bạn dùng thêm nhiều cốc nhựa hơn','Mỗi bạn bỏ chai nhựa xuống ngăn bàn'],c:0},
-    {ey:'World 1 · Hành động xanh',q:'Trong giờ trực nhật, tổ của Mai thấy ở góc lớp có một số mẩu giấy nhỏ bị rơi xuống đất. Theo em, việc làm nào thể hiện ý thức bảo vệ môi trường học đường tốt nhất?',o:['Chờ cuối tuần mới nhặt','Nhặt lên và bỏ vào đúng thùng rác','Quét dọn vào gầm bàn cho đỡ thấy'],c:1},
-    {ey:'World 1 · Hành động xanh',q:'Ở công viên gần nhà, một bạn nhỏ bẻ cành cây để chơi vì nghĩ cây sẽ mọc lại. Theo em, hành động nào dưới đây là đúng hơn?',o:['Khuyên bạn không bẻ cành cây và cùng bảo vệ cây xanh','Bẻ thêm lá để chơi cho vui','Không quan tâm vì cây không phải của mình'],c:0},
-    {ey:'World 1 · Nhận thức môi trường',q:'Rác thải điện tử như pin, dây sạc, thiết bị điện hỏng nếu bị vứt bừa bãi có thể gây ảnh hưởng xấu nhất đến điều gì?',o:['Đất và nguồn nước','Chỉ làm bẩn bàn học','Không gây ảnh hưởng gì đáng kể'],c:0},
-    {ey:'World 1 · Nhận thức môi trường',q:'Cây xanh thường được trồng nhiều ở sân trường, công viên và ven đường. Theo em, lợi ích quan trọng của cây xanh đối với môi trường là gì?',o:['Làm cho không khí trong lành hơn','Làm tăng lượng rác trong sân','Làm cho trời nóng hơn'],c:0},
-    {ey:'World 1 · Nhận thức môi trường',q:'Một khu dân cư có người đổ rác thải xuống kênh mương. Theo em, hậu quả nào sau đây có thể xảy ra trong thực tế?',o:['Nước bị ô nhiễm và dễ phát sinh mùi hôi','Nước trở nên sạch hơn','Cá và cây cối phát triển tốt hơn ngay lập tức'],c:0},
-    {ey:'World 1 · Nhận thức môi trường',q:'Trong các hoạt động hàng ngày, việc tắt đèn và quạt khi ra khỏi phòng có ý nghĩa gì đối với môi trường?',o:['Giúp tiết kiệm điện năng và giảm lãng phí tài nguyên','Làm lớp học tối hơn nên không tốt','Không có tác dụng gì'],c:0},
-    {ey:'World 1 · Nhận thức môi trường',q:'Khi gia đình đi chợ, mẹ của Vy thường mang theo túi vải dùng nhiều lần thay vì lấy nhiều túi ni-lông mới. Theo em, việc làm đó giúp ích gì cho môi trường?',o:['Giảm lượng rác nhựa thải ra','Tăng lượng túi ni-lông sử dụng','Không tạo ra sự thay đổi nào'],c:0},
-    {ey:'World 1 · Tình huống thực tế',q:'Trong lớp học, Bình thấy bạn mình vừa ăn bánh xong và định bỏ vỏ bánh vào thùng rác tái chế. Nếu là Bình, em nên nhắc bạn như thế nào cho đúng?',o:['Bạn hãy bỏ vỏ bánh vào thùng rác phù hợp, vì loại rác này thường không phải là rác tái chế.','Bạn cứ bỏ đâu cũng được, miễn là nhanh.','Bạn nên giấu xuống ngăn bàn để lát sau tính.'],c:0},
-    {ey:'World 1 · Tình huống thực tế',q:'Ở nhà, sau khi thay hộp mực máy in cũ, bố của Khôi đang phân vân chưa biết bỏ ở đâu. Theo em, hộp mực in cũ nên được xử lý như thế nào?',o:['Bỏ vào nhóm rác nguy hại hoặc nơi thu gom phù hợp','Bỏ chung với rau thừa','Bỏ chung với giấy báo cũ'],c:0},
-    {ey:'World 1 · Tình huống thực tế',q:'Trong một buổi lao động, các bạn học sinh phát hiện có lá cây khô, vỏ trái cây và giấy vụn nằm lẫn vào nhau. Theo em, nhóm nào dưới đây phân loại đúng nhất?',o:['Lá cây khô và vỏ trái cây là rác hữu cơ; giấy vụn là rác tái chế','Tất cả đều là rác nguy hại','Tất cả đều là rác hữu cơ'],c:0},
-    {ey:'World 1 · Tình huống thực tế',q:'Nhà trường tổ chức phong trào "Mỗi lớp một hành động xanh". Theo em, lớp học nên chọn việc làm nào sau đây để vừa thiết thực vừa dễ thực hiện?',o:['Phân loại rác trong lớp và nhắc nhau tắt điện khi không sử dụng','Dùng thật nhiều đồ nhựa dùng một lần cho tiện','Để giấy vụn rơi dưới sàn rồi cuối tháng dọn một lần'],c:0},
-    {ey:'World 1 · Tình huống thực tế',q:'Khi trời mưa lớn, nhiều rác bị cuốn vào miệng cống trước cổng trường. Theo em, việc này có thể gây ra hậu quả gì trong thực tế?',o:['Làm tắc cống và dễ gây ngập nước','Làm cho nước thoát nhanh hơn','Không ảnh hưởng gì đến khu vực xung quanh'],c:0},
+    {ey:'Vùng Dữ Liệu · Phân loại rác',q:'Sau giờ ra chơi, Minh nhìn thấy một chai nhựa đã uống hết nước và được rửa sạch. Theo em, Minh nên bỏ chai nhựa đó vào đâu để bảo vệ môi trường?',o:['Thùng rác hữu cơ','Thùng rác tái chế','Thùng rác nguy hại'],c:1},
+    {ey:'Vùng Dữ Liệu · Phân loại rác',q:'Trong giờ ăn nhẹ, Lan ăn xong một quả chuối và còn lại vỏ chuối. Theo em, Lan nên bỏ vỏ chuối vào loại thùng rác nào là phù hợp nhất?',o:['Thùng rác hữu cơ','Thùng rác tái chế','Thùng rác nguy hại'],c:0},
+    {ey:'Vùng Dữ Liệu · Phân loại rác',q:'Khi dọn bàn học ở nhà, Nam phát hiện một viên pin cũ đã hết điện. Theo em, Nam nên xử lý viên pin đó như thế nào để an toàn cho môi trường?',o:['Bỏ vào thùng rác nguy hại','Bỏ vào thùng rác hữu cơ','Bỏ chung với giấy vụn'],c:0},
+    {ey:'Vùng Dữ Liệu · Phân loại rác',q:'Ở lớp học, cô giáo nhắc học sinh thu gom giấy báo cũ và giấy in một mặt để tái sử dụng hoặc tái chế. Theo em, loại rác này nên được bỏ vào đâu?',o:['Thùng rác tái chế','Thùng rác hữu cơ','Thùng rác nguy hại'],c:0},
+    {ey:'Vùng Dữ Liệu · Phân loại rác',q:'Khi dọn dẹp nhà kho, bố của An tìm thấy một bóng đèn bị vỡ. Theo em, gia đình An nên phân loại bóng đèn này vào nhóm rác nào?',o:['Rác tái chế','Rác hữu cơ','Rác nguy hại'],c:2},
+    {ey:'Vùng Dữ Liệu · Hành động xanh',q:'Sau khi uống nước xong, một bạn học sinh định vứt cốc nhựa ngay xuống sân trường vì nghĩ rằng lao công sẽ dọn sau. Theo em, bạn học sinh đó nên làm gì là đúng nhất?',o:['Để nguyên trên ghế đá','Bỏ đúng nơi quy định hoặc đúng thùng phân loại','Ném vào bồn cây cho khuất mắt'],c:1},
+    {ey:'Vùng Dữ Liệu · Hành động xanh',q:'Trong khi rửa tay, Hùng thấy nước vẫn chảy mạnh dù mình đã rửa xong. Theo em, việc Hùng nên làm ngay lúc đó là gì?',o:['Để nước chảy tiếp cho sạch bồn rửa','Khóa vòi nước lại để tiết kiệm nước','Bỏ đi ngay vì không phải việc của mình'],c:1},
+    {ey:'Vùng Dữ Liệu · Hành động xanh',q:'Một lớp học muốn giảm lượng rác nhựa dùng một lần trong tuần lễ Trường học Xanh. Theo em, việc làm nào dưới đây là phù hợp nhất?',o:['Mỗi bạn mang theo bình nước cá nhân','Mỗi bạn dùng thêm nhiều cốc nhựa hơn','Mỗi bạn bỏ chai nhựa xuống ngăn bàn'],c:0},
+    {ey:'Vùng Dữ Liệu · Hành động xanh',q:'Trong giờ trực nhật, tổ của Mai thấy ở góc lớp có một số mẩu giấy nhỏ bị rơi xuống đất. Theo em, việc làm nào thể hiện ý thức bảo vệ môi trường học đường tốt nhất?',o:['Chờ cuối tuần mới nhặt','Nhặt lên và bỏ vào đúng thùng rác','Quét dọn vào gầm bàn cho đỡ thấy'],c:1},
+    {ey:'Vùng Dữ Liệu · Hành động xanh',q:'Ở công viên gần nhà, một bạn nhỏ bẻ cành cây để chơi vì nghĩ cây sẽ mọc lại. Theo em, hành động nào dưới đây là đúng hơn?',o:['Khuyên bạn không bẻ cành cây và cùng bảo vệ cây xanh','Bẻ thêm lá để chơi cho vui','Không quan tâm vì cây không phải của mình'],c:0},
+    {ey:'Vùng Dữ Liệu · Nhận thức môi trường',q:'Rác thải điện tử như pin, dây sạc, thiết bị điện hỏng nếu bị vứt bừa bãi có thể gây ảnh hưởng xấu nhất đến điều gì?',o:['Đất và nguồn nước','Chỉ làm bẩn bàn học','Không gây ảnh hưởng gì đáng kể'],c:0},
+    {ey:'Vùng Dữ Liệu · Nhận thức môi trường',q:'Cây xanh thường được trồng nhiều ở sân trường, công viên và ven đường. Theo em, lợi ích quan trọng của cây xanh đối với môi trường là gì?',o:['Làm cho không khí trong lành hơn','Làm tăng lượng rác trong sân','Làm cho trời nóng hơn'],c:0},
+    {ey:'Vùng Dữ Liệu · Nhận thức môi trường',q:'Một khu dân cư có người đổ rác thải xuống kênh mương. Theo em, hậu quả nào sau đây có thể xảy ra trong thực tế?',o:['Nước bị ô nhiễm và dễ phát sinh mùi hôi','Nước trở nên sạch hơn','Cá và cây cối phát triển tốt hơn ngay lập tức'],c:0},
+    {ey:'Vùng Dữ Liệu · Nhận thức môi trường',q:'Trong các hoạt động hàng ngày, việc tắt đèn và quạt khi ra khỏi phòng có ý nghĩa gì đối với môi trường?',o:['Giúp tiết kiệm điện năng và giảm lãng phí tài nguyên','Làm lớp học tối hơn nên không tốt','Không có tác dụng gì'],c:0},
+    {ey:'Vùng Dữ Liệu · Nhận thức môi trường',q:'Khi gia đình đi chợ, mẹ của Vy thường mang theo túi vải dùng nhiều lần thay vì lấy nhiều túi ni-lông mới. Theo em, việc làm đó giúp ích gì cho môi trường?',o:['Giảm lượng rác nhựa thải ra','Tăng lượng túi ni-lông sử dụng','Không tạo ra sự thay đổi nào'],c:0},
+    {ey:'Vùng Dữ Liệu · Tình huống thực tế',q:'Trong lớp học, Bình thấy bạn mình vừa ăn bánh xong và định bỏ vỏ bánh vào thùng rác tái chế. Nếu là Bình, em nên nhắc bạn như thế nào cho đúng?',o:['Bạn hãy bỏ vỏ bánh vào thùng rác phù hợp, vì loại rác này thường không phải là rác tái chế.','Bạn cứ bỏ đâu cũng được, miễn là nhanh.','Bạn nên giấu xuống ngăn bàn để lát sau tính.'],c:0},
+    {ey:'Vùng Dữ Liệu · Tình huống thực tế',q:'Ở nhà, sau khi thay hộp mực máy in cũ, bố của Khôi đang phân vân chưa biết bỏ ở đâu. Theo em, hộp mực in cũ nên được xử lý như thế nào?',o:['Bỏ vào nhóm rác nguy hại hoặc nơi thu gom phù hợp','Bỏ chung với rau thừa','Bỏ chung với giấy báo cũ'],c:0},
+    {ey:'Vùng Dữ Liệu · Tình huống thực tế',q:'Trong một buổi lao động, các bạn học sinh phát hiện có lá cây khô, vỏ trái cây và giấy vụn nằm lẫn vào nhau. Theo em, nhóm nào dưới đây phân loại đúng nhất?',o:['Lá cây khô và vỏ trái cây là rác hữu cơ; giấy vụn là rác tái chế','Tất cả đều là rác nguy hại','Tất cả đều là rác hữu cơ'],c:0},
+    {ey:'Vùng Dữ Liệu · Tình huống thực tế',q:'Nhà trường tổ chức phong trào "Mỗi lớp một hành động xanh". Theo em, lớp học nên chọn việc làm nào sau đây để vừa thiết thực vừa dễ thực hiện?',o:['Phân loại rác trong lớp và nhắc nhau tắt điện khi không sử dụng','Dùng thật nhiều đồ nhựa dùng một lần cho tiện','Để giấy vụn rơi dưới sàn rồi cuối tháng dọn một lần'],c:0},
+    {ey:'Vùng Dữ Liệu · Tình huống thực tế',q:'Khi trời mưa lớn, nhiều rác bị cuốn vào miệng cống trước cổng trường. Theo em, việc này có thể gây ra hậu quả gì trong thực tế?',o:['Làm tắc cống và dễ gây ngập nước','Làm cho nước thoát nhanh hơn','Không ảnh hưởng gì đến khu vực xung quanh'],c:0},
   ];
 
   const W2Q = [
-    {ey:'World 2 · Giải mã số',q:'Mario tìm thấy dãy nhị phân 01011 trên cánh cửa bí mật. Em hãy đổi dãy số này sang hệ thập phân để mở cửa.',a:11},
-    {ey:'World 2 · Giải mã số',q:'Luigi nhìn thấy mã nhị phân 0011 trên một đồng xu phát sáng. Em hãy điền giá trị thập phân tương ứng.',a:3},
-    {ey:'World 2 · Giải mã số',q:'Peach gửi cho Mario tín hiệu nhị phân 1001 để kích hoạt ống nước sạch. Em hãy điền số thập phân đúng.',a:9},
-    {ey:'World 2 · Giải mã số',q:'Trong phòng điều khiển, Mario nhìn thấy mã nhị phân 0110. Em hãy điền đáp án đúng để hệ thống tiếp tục hoạt động.',a:6},
-    {ey:'World 2 · Giải mã số',q:'Bowser khóa cánh cổng bằng dãy nhị phân 11111. Em hãy đổi dãy số đó sang hệ thập phân để mở khóa.',a:31},
-    {ey:'World 2 · Dãy số',q:'Bảng năng lượng xanh hiển thị dãy số 1, 2, 4, 8, ?. Em hãy điền số tiếp theo theo đúng quy luật.',a:16},
-    {ey:'World 2 · Dãy số',q:'Hệ thống đếm năm xanh của Mario cho dãy số 2, 4, 8, 16, ?. Em hãy tìm số tiếp theo.',a:32},
-    {ey:'World 2 · Dãy số',q:'Trong kho dữ liệu, Mario thấy dãy số 3, 6, 12, 24, ?. Em hãy điền số còn thiếu.',a:48},
-    {ey:'World 2 · Dãy số',q:'Trên đường ống giải mã, Luigi phát hiện dãy số 1, 3, 9, 27, ?. Em hãy điền số tiếp theo.',a:81},
-    {ey:'World 2 · Dãy số',q:'Bảng điều khiển của Toad cho dãy số 2, 5, 8, 11, ?. Em hãy điền số tiếp theo theo quy luật.',a:14},
-    {ey:'World 2 · Dãy số',q:'Mario nhìn thấy dãy số 10, 9, 8, 7, ? trên cánh cổng sắt. Em hãy điền số tiếp theo.',a:6},
-    {ey:'World 2 · Dãy số',q:'Hệ thống cảnh báo ô nhiễm hiển thị dãy số 5, 10, 15, 20, ?. Em hãy điền số tiếp theo.',a:25},
-    {ey:'World 2 · Dãy số',q:'Bộ đếm hạt giống xanh hiện dãy số 1, 1, 2, 3, 5, 8, ?. Em hãy điền số còn thiếu.',a:13},
-    {ey:'World 2 · Dãy số',q:'Trong một nhà kính của Vương quốc Nấm, số cây non tăng theo dãy 2, 3, 5, 8, 13, ?. Em hãy điền số tiếp theo.',a:21},
-    {ey:'World 2 · Toán xanh',q:'Lâu đài Bowser có 1200 đơn vị rác. Nếu mỗi robot dọn được 300 đơn vị rác, em hãy điền số robot ít nhất cần dùng để dọn sạch hoàn toàn.',a:4},
-    {ey:'World 2 · Toán xanh',q:'Đồng cỏ Xanh có 400 đơn vị rác, còn Sa mạc Cát có 800 đơn vị rác. Em hãy điền tổng lượng rác của hai khu vực này.',a:1200},
-    {ey:'World 2 · Toán xanh',q:'Ba khu vực có lượng rác lần lượt là 1200, 400 và 800 đơn vị. Em hãy điền tổng lượng rác của cả ba khu vực.',a:2400},
-    {ey:'World 2 · Toán xanh',q:'Một đội môi trường đã dọn được 600 đơn vị rác trong ngày thứ nhất và 300 đơn vị rác trong ngày thứ hai. Em hãy điền tổng số đơn vị rác mà đội đã dọn được sau hai ngày.',a:900},
-    {ey:'World 2 · Toán xanh',q:'Nếu một vòi nước tiết kiệm được 5 lít nước mỗi giờ, thì trong 4 giờ vòi nước đó sẽ tiết kiệm được bao nhiêu lít nước? Em hãy điền đáp án.',a:20},
-    {ey:'World 2 · Toán xanh',q:'Một lớp học trồng 4 chậu cây, mỗi chậu có 3 cây non. Em hãy điền tổng số cây non mà lớp học đã trồng.',a:12},
+    {ey:'Vùng Giải Mã · Giải mã số',q:'Mario tìm thấy dãy nhị phân 01011 trên cánh cửa bí mật. Em hãy đổi dãy số này sang hệ thập phân để mở cửa.',a:11},
+    {ey:'Vùng Giải Mã · Giải mã số',q:'Luigi nhìn thấy mã nhị phân 0011 trên một đồng xu phát sáng. Em hãy điền giá trị thập phân tương ứng.',a:3},
+    {ey:'Vùng Giải Mã · Giải mã số',q:'Peach gửi cho Mario tín hiệu nhị phân 1001 để kích hoạt ống nước sạch. Em hãy điền số thập phân đúng.',a:9},
+    {ey:'Vùng Giải Mã · Giải mã số',q:'Trong phòng điều khiển, Mario nhìn thấy mã nhị phân 0110. Em hãy điền đáp án đúng để hệ thống tiếp tục hoạt động.',a:6},
+    {ey:'Vùng Giải Mã · Giải mã số',q:'Bowser khóa cánh cổng bằng dãy nhị phân 11111. Em hãy đổi dãy số đó sang hệ thập phân để mở khóa.',a:31},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Bảng năng lượng xanh hiển thị dãy số 1, 2, 4, 8, ?. Em hãy điền số tiếp theo theo đúng quy luật.',a:16},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Hệ thống đếm năm xanh của Mario cho dãy số 2, 4, 8, 16, ?. Em hãy tìm số tiếp theo.',a:32},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Trong kho dữ liệu, Mario thấy dãy số 3, 6, 12, 24, ?. Em hãy điền số còn thiếu.',a:48},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Trên đường ống giải mã, Luigi phát hiện dãy số 1, 3, 9, 27, ?. Em hãy điền số tiếp theo.',a:81},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Bảng điều khiển của Toad cho dãy số 2, 5, 8, 11, ?. Em hãy điền số tiếp theo theo quy luật.',a:14},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Mario nhìn thấy dãy số 10, 9, 8, 7, ? trên cánh cổng sắt. Em hãy điền số tiếp theo.',a:6},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Hệ thống cảnh báo ô nhiễm hiển thị dãy số 5, 10, 15, 20, ?. Em hãy điền số tiếp theo.',a:25},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Bộ đếm hạt giống xanh hiện dãy số 1, 1, 2, 3, 5, 8, ?. Em hãy điền số còn thiếu.',a:13},
+    {ey:'Vùng Giải Mã · Dãy số',q:'Trong một nhà kính của Hộ Chiếu Xanh, số cây non tăng theo dãy 2, 3, 5, 8, 13, ?. Em hãy điền số tiếp theo.',a:21},
+    {ey:'Vùng Giải Mã · Toán xanh',q:'Lâu đài Bowser có 1200 đơn vị rác. Nếu mỗi robot dọn được 300 đơn vị rác, em hãy điền số robot ít nhất cần dùng để dọn sạch hoàn toàn.',a:4},
+    {ey:'Vùng Giải Mã · Toán xanh',q:'Đồng cỏ Xanh có 400 đơn vị rác, còn Sa mạc Cát có 800 đơn vị rác. Em hãy điền tổng lượng rác của hai khu vực này.',a:1200},
+    {ey:'Vùng Giải Mã · Toán xanh',q:'Ba khu vực có lượng rác lần lượt là 1200, 400 và 800 đơn vị. Em hãy điền tổng lượng rác của cả ba khu vực.',a:2400},
+    {ey:'Vùng Giải Mã · Toán xanh',q:'Một đội môi trường đã dọn được 600 đơn vị rác trong ngày thứ nhất và 300 đơn vị rác trong ngày thứ hai. Em hãy điền tổng số đơn vị rác mà đội đã dọn được sau hai ngày.',a:900},
+    {ey:'Vùng Giải Mã · Toán xanh',q:'Nếu một vòi nước tiết kiệm được 5 lít nước mỗi giờ, thì trong 4 giờ vòi nước đó sẽ tiết kiệm được bao nhiêu lít nước? Em hãy điền đáp án.',a:20},
+    {ey:'Vùng Giải Mã · Toán xanh',q:'Một lớp học trồng 4 chậu cây, mỗi chậu có 3 cây non. Em hãy điền tổng số cây non mà lớp học đã trồng.',a:12},
   ];
 
   const W3Q = [
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần vượt qua một hố bẫy nhỏ để đi đến cột cờ. Em hãy sắp xếp đúng trình tự các lệnh sau.',steps:['Bắt đầu','Tiến 2 bước','Nhảy','Về đích']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần đi qua một con đường có Goomba đứng chặn phía trước. Em hãy sắp xếp đúng trình tự để Mario né Goomba và tiếp tục di chuyển.',steps:['Bắt đầu','Tiến 1 bước','Nhảy cao','Tiến 1 bước']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Hệ thống bơm nước sạch cho rừng Nấm cần hoạt động đúng quy trình. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Kiểm tra bồn chứa','Bơm nước','Kết thúc']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần thu gom rác trong sân trường theo cách đúng nhất. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Quan sát loại rác','Nhặt rác','Bỏ rác vào đúng thùng']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Một vòi nước đang bị chảy lãng phí trong khu vườn. Em hãy sắp xếp đúng trình tự hành động sau.',steps:['Bắt đầu','Phát hiện vòi nước đang chảy','Khóa vòi nước','Kiểm tra lại vòi nước']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần trồng cây xanh trong khu vườn mới. Em hãy sắp xếp đúng trình tự các bước sau.',steps:['Bắt đầu','Đào hố','Đặt cây vào hố','Tưới nước']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Đội môi trường muốn dọn lớp học sạch sẽ. Em hãy sắp xếp đúng quy trình.',steps:['Bắt đầu','Nhặt rác','Phân loại rác','Bỏ rác vào các thùng phù hợp']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần đưa nước sạch đến Vương quốc Nấm bằng hệ thống có điều kiện. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Kiểm tra mức nước','Bơm nước','Nếu bồn đầy thì dừng']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Một nhóm học sinh muốn tái chế giấy cũ trong lớp. Em hãy sắp xếp đúng quy trình.',steps:['Bắt đầu','Thu gom giấy cũ','Kiểm tra giấy còn tái chế được không','Bỏ vào thùng tái chế']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần hoàn thành nhiệm vụ giải cứu đường ống xanh. Em hãy sắp xếp trình tự sau.',steps:['Bắt đầu','Kiểm tra vị trí rò rỉ','Sửa đường ống bị rò','Mở lại hệ thống nước']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Luigi muốn dọn sạch một góc vườn có lá khô rơi nhiều. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Gom lá khô','Xác định loại rác','Bỏ vào thùng rác hữu cơ']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Hệ thống tưới cây thông minh chỉ hoạt động khi đất khô. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Kiểm tra độ ẩm đất','Nếu độ ẩm thấp thì bật vòi tưới','Đợi 5 giây']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần vượt một mê cung ngắn để đến nơi đặt thùng tái chế. Em hãy sắp xếp đúng các lệnh sau.',steps:['Bắt đầu','Tiến 1 bước','Rẽ phải','Tiến 1 bước']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Một lớp học muốn tiết kiệm điện vào cuối ngày. Em hãy sắp xếp đúng trình tự các việc cần làm.',steps:['Bắt đầu','Kiểm tra thiết bị trong lớp','Tắt đèn','Tắt quạt']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario phải thu gom rác nguy hại đúng cách. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Xác định đó là rác nguy hại','Thu gom cẩn thận','Mang đến điểm thu gom phù hợp']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Để làm sạch khu vực gần cống thoát nước, nhóm học sinh cần làm việc theo đúng trình tự. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Nhặt rác quanh miệng cống','Bỏ rác vào đúng nơi quy định','Kiểm tra cống có bị tắc không']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần khởi động hệ thống lọc không khí trong lâu đài. Em hãy sắp xếp đúng trình tự.',steps:['Bắt đầu','Kiểm tra nguồn điện','Bật máy lọc','Kiểm tra máy đã hoạt động chưa']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Trong một dự án "Lớp học xanh", học sinh cần thực hiện đúng quy trình chăm sóc cây. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Quan sát cây','Kiểm tra đất trong chậu','Tưới nước nếu đất khô']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Mario cần hoàn thành chu trình làm sạch khu vui chơi. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Nhặt rác','Phân loại rác','Đưa rác đến khu xử lý']},
-    {ey:'World 3 · Sắp xếp lệnh',q:'Hệ thống tưới nước tự động của Vương quốc Nấm hoạt động lặp lại. Em hãy sắp xếp đúng trình tự khối lệnh sau.',steps:['Bắt đầu vòng lặp','Kiểm tra độ ẩm đất','Nếu độ ẩm thấp thì tưới nước','Đợi 5 giây']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần vượt qua một hố bẫy nhỏ để đi đến cột cờ. Em hãy sắp xếp đúng trình tự các lệnh sau.',steps:['Bắt đầu','Tiến 2 bước','Nhảy','Về đích']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần đi qua một con đường có Goomba đứng chặn phía trước. Em hãy sắp xếp đúng trình tự để Mario né Goomba và tiếp tục di chuyển.',steps:['Bắt đầu','Tiến 1 bước','Nhảy cao','Tiến 1 bước']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Hệ thống bơm nước sạch cho rừng Nấm cần hoạt động đúng quy trình. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Kiểm tra bồn chứa','Bơm nước','Kết thúc']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần thu gom rác trong sân trường theo cách đúng nhất. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Quan sát loại rác','Nhặt rác','Bỏ rác vào đúng thùng']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Một vòi nước đang bị chảy lãng phí trong khu vườn. Em hãy sắp xếp đúng trình tự hành động sau.',steps:['Bắt đầu','Phát hiện vòi nước đang chảy','Khóa vòi nước','Kiểm tra lại vòi nước']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần trồng cây xanh trong khu vườn mới. Em hãy sắp xếp đúng trình tự các bước sau.',steps:['Bắt đầu','Đào hố','Đặt cây vào hố','Tưới nước']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Đội môi trường muốn dọn lớp học sạch sẽ. Em hãy sắp xếp đúng quy trình.',steps:['Bắt đầu','Nhặt rác','Phân loại rác','Bỏ rác vào các thùng phù hợp']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần đưa nước sạch đến Hộ Chiếu Xanh bằng hệ thống có điều kiện. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Kiểm tra mức nước','Bơm nước','Nếu bồn đầy thì dừng']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Một nhóm học sinh muốn tái chế giấy cũ trong lớp. Em hãy sắp xếp đúng quy trình.',steps:['Bắt đầu','Thu gom giấy cũ','Kiểm tra giấy còn tái chế được không','Bỏ vào thùng tái chế']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần hoàn thành nhiệm vụ giải cứu đường ống xanh. Em hãy sắp xếp trình tự sau.',steps:['Bắt đầu','Kiểm tra vị trí rò rỉ','Sửa đường ống bị rò','Mở lại hệ thống nước']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Luigi muốn dọn sạch một góc vườn có lá khô rơi nhiều. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Gom lá khô','Xác định loại rác','Bỏ vào thùng rác hữu cơ']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Hệ thống tưới cây thông minh chỉ hoạt động khi đất khô. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Kiểm tra độ ẩm đất','Nếu độ ẩm thấp thì bật vòi tưới','Đợi 5 giây']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần vượt một mê cung ngắn để đến nơi đặt thùng tái chế. Em hãy sắp xếp đúng các lệnh sau.',steps:['Bắt đầu','Tiến 1 bước','Rẽ phải','Tiến 1 bước']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Một lớp học muốn tiết kiệm điện vào cuối ngày. Em hãy sắp xếp đúng trình tự các việc cần làm.',steps:['Bắt đầu','Kiểm tra thiết bị trong lớp','Tắt đèn','Tắt quạt']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario phải thu gom rác nguy hại đúng cách. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Xác định đó là rác nguy hại','Thu gom cẩn thận','Mang đến điểm thu gom phù hợp']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Để làm sạch khu vực gần cống thoát nước, nhóm học sinh cần làm việc theo đúng trình tự. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Nhặt rác quanh miệng cống','Bỏ rác vào đúng nơi quy định','Kiểm tra cống có bị tắc không']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần khởi động hệ thống lọc không khí trong lâu đài. Em hãy sắp xếp đúng trình tự.',steps:['Bắt đầu','Kiểm tra nguồn điện','Bật máy lọc','Kiểm tra máy đã hoạt động chưa']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Trong một dự án "Lớp học xanh", học sinh cần thực hiện đúng quy trình chăm sóc cây. Em hãy sắp xếp các bước sau.',steps:['Bắt đầu','Quan sát cây','Kiểm tra đất trong chậu','Tưới nước nếu đất khô']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Mario cần hoàn thành chu trình làm sạch khu vui chơi. Em hãy sắp xếp đúng các bước sau.',steps:['Bắt đầu','Nhặt rác','Phân loại rác','Đưa rác đến khu xử lý']},
+    {ey:'Vùng Thuật Toán · Sắp xếp lệnh',q:'Hệ thống tưới nước tự động của Hộ Chiếu Xanh hoạt động lặp lại. Em hãy sắp xếp đúng trình tự khối lệnh sau.',steps:['Bắt đầu vòng lặp','Kiểm tra độ ẩm đất','Nếu độ ẩm thấp thì tưới nước','Đợi 5 giây']},
   ];
 
   const WDATA = [
@@ -798,7 +814,7 @@ const G = (() => {
   function triggerMaze() {
     mazeActive=true; qPaused=true;
     mz={r:0,c:0}; mazePath=[];
-    document.getElementById('qEyebrow').textContent='World 2 · Mê cung thu gom';
+    document.getElementById('qEyebrow').textContent='Vùng Giải Mã · Mê cung thu gom';
     document.getElementById('qText').textContent='Dẫn xe rác 🚛 từ S đến R. Dùng phím mũi tên hoặc nhấn ô liền kề.';
     document.getElementById('qOpts').innerHTML='';
     document.getElementById('qFb').textContent='';
@@ -990,10 +1006,13 @@ const G = (() => {
       document.getElementById('qOverlay').classList.add('hidden');
       if(window.matchMedia('(pointer:coarse)').matches)
         document.getElementById('mctrl').style.display='flex';
+      const wd=WDATA[st.world];
+      document.body.style.background=`linear-gradient(to bottom,${wd.bg} 0%,${wd.gc} 100%)`;
       if(!running){running=true;requestAnimationFrame(loop);}
     },
 
     goWorldSelect() {
+      document.body.style.background='#000';
       st.screen='overlay'; showOvl('sWorld'); updateWCards();
     },
 
