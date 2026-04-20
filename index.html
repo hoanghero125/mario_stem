@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mario STEM – Vương Quốc Nấm</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Courier New',monospace;overflow:hidden;user-select:none}
+    canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges;position:fixed;top:0;left:0;z-index:2}
+
+    /* ── overlay ── */
+    #overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;background:rgba(0,0,0,.35)}
+    #overlay.hidden{display:none}
+    .screen.hidden{display:none}
+    .screen{background:#000088;border:4px solid #fbd000;padding:2.4rem 2.8rem;max-width:640px;width:94%;color:#fff;text-align:center;font-family:'Courier New',monospace}
+    .screen h1{color:#fbd000;font-size:1.9rem;margin-bottom:.6rem;text-transform:uppercase;letter-spacing:.06em}
+    .screen .sub{color:#aaa;font-size:1rem;margin-bottom:1.2rem}
+    .screen input{display:block;width:100%;margin:.5rem 0;padding:.7rem .9rem;background:#000;border:2px solid #5c94fc;color:#fff;font-family:inherit;font-size:1.1rem;outline:none}
+    .screen input:focus{border-color:#fbd000}
+    .btn{background:#cc0000;border:3px solid #ff7777;color:#fff;padding:.75rem 1.8rem;font-family:inherit;font-size:1.05rem;cursor:pointer;text-transform:uppercase;margin:.4rem .25rem;letter-spacing:.04em}
+    .btn:hover:not(:disabled){background:#ff0000}
+    .btn:disabled{background:#444;border-color:#666;cursor:not-allowed}
+    .btn-sec{background:#000044;border-color:#5c94fc}
+    .btn-sec:hover:not(:disabled){background:#000088}
+
+    /* world select */
+    .wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1rem 0}
+    .wcard{background:#000044;border:3px solid #5c94fc;padding:1.1rem .7rem;cursor:pointer;transition:border-color .15s}
+    .wcard:hover{border-color:#fbd000}
+    .wcard.done{border-color:#00cc00}
+    .wcard .wi{font-size:2.6rem}
+    .wcard h3{font-size:1rem;color:#fbd000;margin:.4rem 0 .2rem}
+    .wcard p{font-size:.85rem;color:#aaa}
+    .wcard .ws{font-size:.85rem;margin-top:.4rem;color:#fbd000;min-height:1rem}
+
+    /* question popup */
+    #qOverlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:20}
+    #qOverlay.hidden{display:none}
+    .qbox{background:#000088;border:4px solid #fbd000;padding:2rem 2.4rem;max-width:680px;width:94%;color:#fff;font-family:'Courier New',monospace}
+    .qeyebrow{color:#fbd000;font-size:.9rem;text-transform:uppercase;margin-bottom:.6rem;letter-spacing:.06em}
+    .qtext{font-size:1.15rem;margin-bottom:1.1rem;line-height:1.6}
+    .qopts{display:grid;gap:.55rem}
+    .qopt{background:#000044;border:2px solid #5c94fc;color:#fff;padding:.75rem 1.1rem;font-family:inherit;font-size:1rem;cursor:pointer;text-align:left}
+    .qopt:hover{border-color:#fbd000;background:#000066}
+    .qopt.wrong{border-color:#ff0000!important;background:#440000!important;animation:shake .3s}
+    .qopt.correct{border-color:#00cc00!important;background:#004400!important}
+    .qfb{margin-top:.8rem;font-size:.95rem;min-height:1.2em}
+    .qfb.bad{color:#ff6666}
+    .qfb.ok{color:#00ff00}
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+    /* number input (World 2) */
+    #numUI{margin:.6rem 0}
+    #numInput{background:#000;border:2px solid #5c94fc;color:#fff;font-family:inherit;font-size:1.3rem;padding:.5rem .8rem;width:100%;outline:none;margin-bottom:.5rem}
+    #numInput:focus{border-color:#fbd000}
+
+    /* budget UI (World 2) */
+    .budgetui{margin:.6rem 0;display:none}
+    .budgetui.show{display:block}
+    .brow{display:flex;justify-content:space-between;align-items:center;font-size:.95rem;margin:.4rem 0;padding:.4rem .7rem;border:1px solid #5c94fc;background:#000044}
+    .bstatus{font-size:.9rem;margin:.5rem 0;padding:.4rem;text-align:center}
+    .bgoals{display:flex;gap:.8rem;justify-content:center;font-size:.9rem;margin-top:.4rem}
+    .bgoal{padding:.3rem .7rem;border:1px solid #888}
+    .bgoal.met{border-color:#00cc00;color:#00cc00}
+    .bgoal.unmet{border-color:#ff4444;color:#ff4444}
+
+    /* maze popup (World 2) */
+    .mazegrid{display:inline-grid;gap:2px;margin:.8rem auto}
+    .mcell{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;border:1px solid #333;transition:background .1s}
+    .mcell.wall{background:#555;cursor:default}
+    .mcell.path{background:#000044}
+    .mcell.path:hover{background:#000088}
+    .mcell.start{background:#0000cc;color:#fff;font-weight:bold}
+    .mcell.goal{background:#cc6600;color:#fff;font-weight:bold}
+    .mcell.selected{background:#006600!important}
+    .mcell.current{background:#0000ff;color:#fff;font-weight:bold}
+    .mlegend{font-size:.85rem;color:#aaa;margin-bottom:.5rem}
+
+    /* sort UI (World 3) */
+    .sort-source{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;min-height:44px;padding:.5rem;border:1px dashed #444;margin-bottom:.6rem}
+    .sort-slots{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-bottom:.6rem}
+    .sort-block{background:#000044;border:2px solid #5c94fc;color:#fff;padding:.5rem .8rem;font-family:'Courier New',monospace;font-size:.88rem;cursor:grab;text-align:center;user-select:none;-webkit-user-select:none;transition:border-color .1s,opacity .1s}
+    .sort-block:hover{border-color:#aaa}
+    .sort-block.dragging{opacity:.25;cursor:grabbing}
+    .sort-slot{background:#000;border:2px dashed #444;color:#555;padding:.5rem .8rem;min-width:120px;min-height:38px;text-align:center;font-family:'Courier New',monospace;font-size:.88rem;transition:border-color .1s,background .1s}
+    .sort-slot.filled{border-style:solid;border-color:#5c94fc;color:#fff;background:#000033;cursor:grab}
+    .sort-slot.filled.dragging{opacity:.25}
+    .sort-slot.drag-over{border-color:#ffd700!important;background:#221100!important}
+    .sort-ghost{background:#000044;border:2px solid #ffd700;color:#fff;padding:.5rem .8rem;font-family:'Courier New',monospace;font-size:.88rem;position:fixed;pointer-events:none;z-index:100;opacity:.9;transform:translate(-50%,-50%);white-space:nowrap}
+
+    /* completion */
+    .codebox{background:#000;border:3px solid #fbd000;padding:1.1rem;font-size:1.8rem;color:#fbd000;letter-spacing:.18em;margin:1rem 0}
+    .phrase{color:#aaa;font-size:1rem;margin-bottom:.6rem}
+
+    /* mobile controls */
+    #mctrl{position:fixed;bottom:0;left:0;right:0;height:160px;display:none;align-items:center;justify-content:space-between;padding:0 24px;z-index:5}
+    .mrow{display:flex;gap:12px;align-items:center}
+    .mbtn{background:none;border:3px solid rgba(255,255,255,.6);color:#fff;width:120px;height:120px;font-size:3rem;cursor:pointer;border-radius:20px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    #bg-scene{position:fixed;inset:0;z-index:1;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges}
+    #bg-scene svg{width:100%;height:100%;position:absolute;inset:0;image-rendering:pixelated}
+  </style>
+</head>
+<body>
+
+<div id="bg-scene">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges">
+  <!-- SKY -->
+  <rect width="800" height="600" fill="#5c94fc"/>
+  <rect width="800" height="8" fill="#7ab4ff"/>
+  <!-- SUN -->
+  <rect x="688" y="16" width="16" height="64" fill="#ffd700"/>
+  <rect x="672" y="32" width="48" height="32" fill="#ffd700"/>
+  <rect x="680" y="24" width="32" height="48" fill="#ffd700"/>
+  <rect x="688" y="32" width="16" height="32" fill="#ffffa0"/>
+  <!-- CLOUD 1 -->
+  <rect x="56"  y="88"  width="80"  height="8"  fill="#fff"/>
+  <rect x="40"  y="72"  width="112" height="24" fill="#fff"/>
+  <rect x="56"  y="56"  width="80"  height="24" fill="#fff"/>
+  <rect x="72"  y="48"  width="48"  height="16" fill="#fff"/>
+  <rect x="56"  y="104" width="80"  height="4"  fill="#bbb"/>
+  <!-- CLOUD 2 -->
+  <rect x="312" y="64"  width="104" height="8"  fill="#fff"/>
+  <rect x="296" y="48"  width="136" height="24" fill="#fff"/>
+  <rect x="312" y="40"  width="104" height="16" fill="#fff"/>
+  <rect x="328" y="32"  width="72"  height="16" fill="#fff"/>
+  <rect x="312" y="80"  width="104" height="4"  fill="#bbb"/>
+  <!-- CLOUD 3 -->
+  <rect x="592" y="80"  width="88"  height="8"  fill="#fff"/>
+  <rect x="576" y="64"  width="120" height="24" fill="#fff"/>
+  <rect x="592" y="56"  width="88"  height="16" fill="#fff"/>
+  <rect x="608" y="48"  width="56"  height="16" fill="#fff"/>
+  <rect x="592" y="96"  width="88"  height="4"  fill="#bbb"/>
+  <!-- PIXEL BIRDS -->
+  <rect x="200" y="152" width="8" height="4" fill="#1a1a6e"/>
+  <rect x="212" y="152" width="8" height="4" fill="#1a1a6e"/>
+  <rect x="420" y="128" width="8" height="4" fill="#1a1a6e"/>
+  <rect x="432" y="128" width="8" height="4" fill="#1a1a6e"/>
+  <rect x="560" y="168" width="6" height="3" fill="#1a1a6e"/>
+  <rect x="570" y="168" width="6" height="3" fill="#1a1a6e"/>
+  <!-- FLOATING LEAVES -->
+  <rect x="240" y="200" width="16" height="8" fill="#28b428"/>
+  <rect x="244" y="192" width="8"  height="8" fill="#50d050"/>
+  <rect x="316" y="164" width="16" height="8" fill="#32cd32"/>
+  <rect x="320" y="156" width="8"  height="8" fill="#50d050"/>
+  <rect x="484" y="180" width="16" height="8" fill="#28b428"/>
+  <rect x="488" y="172" width="8"  height="8" fill="#32cd32"/>
+  <rect x="564" y="148" width="12" height="8" fill="#50d050"/>
+  <!-- GROUND LAYERS -->
+  <rect x="0" y="456" width="800" height="4"   fill="#64ff64"/>
+  <rect x="0" y="460" width="800" height="16"  fill="#32cd32"/>
+  <rect x="0" y="476" width="800" height="20"  fill="#228b22"/>
+  <rect x="0" y="496" width="800" height="104" fill="#1a6b1a"/>
+  <!-- LEFT TREE 1 (tall) -->
+  <rect x="52"  y="408" width="16" height="56" fill="#5c3a1e"/>
+  <rect x="56"  y="408" width="8"  height="56" fill="#7a5030"/>
+  <rect x="16"  y="376" width="88" height="32" fill="#145214"/>
+  <rect x="24"  y="344" width="72" height="32" fill="#1e7a1e"/>
+  <rect x="24"  y="368" width="16" height="8"  fill="#28a828"/>
+  <rect x="32"  y="312" width="56" height="32" fill="#228b22"/>
+  <rect x="32"  y="336" width="16" height="8"  fill="#32cd32"/>
+  <rect x="48"  y="280" width="24" height="32" fill="#28b428"/>
+  <rect x="52"  y="264" width="16" height="24" fill="#32cd32"/>
+  <rect x="56"  y="248" width="8"  height="24" fill="#50d050"/>
+  <!-- LEFT TREE 2 (short) -->
+  <rect x="176" y="424" width="12" height="40" fill="#5c3a1e"/>
+  <rect x="178" y="424" width="6"  height="40" fill="#7a5030"/>
+  <rect x="152" y="400" width="56" height="24" fill="#145214"/>
+  <rect x="160" y="376" width="40" height="24" fill="#1e7a1e"/>
+  <rect x="164" y="360" width="32" height="24" fill="#228b22"/>
+  <rect x="168" y="344" width="24" height="24" fill="#28b428"/>
+  <rect x="170" y="332" width="20" height="20" fill="#32cd32"/>
+  <rect x="172" y="320" width="16" height="16" fill="#50d050"/>
+  <!-- RIGHT TREE 1 (tall) -->
+  <rect x="700" y="400" width="16" height="64" fill="#5c3a1e"/>
+  <rect x="704" y="400" width="8"  height="64" fill="#7a5030"/>
+  <rect x="664" y="368" width="88" height="32" fill="#145214"/>
+  <rect x="672" y="336" width="72" height="32" fill="#1e7a1e"/>
+  <rect x="672" y="360" width="16" height="8"  fill="#28a828"/>
+  <rect x="680" y="304" width="56" height="32" fill="#228b22"/>
+  <rect x="680" y="328" width="16" height="8"  fill="#32cd32"/>
+  <rect x="688" y="272" width="40" height="32" fill="#28b428"/>
+  <rect x="692" y="248" width="32" height="32" fill="#32cd32"/>
+  <rect x="696" y="228" width="24" height="28" fill="#50d050"/>
+  <rect x="700" y="212" width="16" height="24" fill="#64ff64"/>
+  <!-- RIGHT TREE 2 (short) -->
+  <rect x="760" y="428" width="12" height="36" fill="#5c3a1e"/>
+  <rect x="762" y="428" width="6"  height="36" fill="#7a5030"/>
+  <rect x="736" y="404" width="60" height="24" fill="#145214"/>
+  <rect x="744" y="380" width="44" height="24" fill="#1e7a1e"/>
+  <rect x="748" y="360" width="36" height="28" fill="#228b22"/>
+  <rect x="752" y="344" width="28" height="24" fill="#28b428"/>
+  <rect x="754" y="328" width="24" height="24" fill="#32cd32"/>
+  <rect x="756" y="316" width="20" height="20" fill="#50d050"/>
+  <!-- BUSHES -->
+  <rect x="370" y="448" width="56" height="16" fill="#1e7a1e"/>
+  <rect x="374" y="440" width="48" height="12" fill="#228b22"/>
+  <rect x="378" y="432" width="40" height="12" fill="#32cd32"/>
+  <rect x="580" y="452" width="48" height="12" fill="#1e7a1e"/>
+  <rect x="584" y="444" width="40" height="12" fill="#228b22"/>
+  <rect x="588" y="436" width="32" height="12" fill="#32cd32"/>
+  <!-- PIXEL FLOWERS -->
+  <!-- F1 pink -->
+  <rect x="222" y="448" width="4" height="16" fill="#228b22"/>
+  <rect x="218" y="440" width="4" height="4" fill="#ffb6d9"/>
+  <rect x="226" y="440" width="4" height="4" fill="#ffb6d9"/>
+  <rect x="222" y="436" width="4" height="4" fill="#ffb6d9"/>
+  <rect x="222" y="444" width="4" height="4" fill="#ffb6d9"/>
+  <rect x="222" y="440" width="4" height="4" fill="#ff69b4"/>
+  <!-- F2 yellow -->
+  <rect x="278" y="448" width="4" height="16" fill="#228b22"/>
+  <rect x="274" y="440" width="4" height="4" fill="#ffd700"/>
+  <rect x="282" y="440" width="4" height="4" fill="#ffd700"/>
+  <rect x="278" y="436" width="4" height="4" fill="#ffd700"/>
+  <rect x="278" y="444" width="4" height="4" fill="#ffd700"/>
+  <rect x="278" y="440" width="4" height="4" fill="#ff8c00"/>
+  <!-- F3 white -->
+  <rect x="342" y="448" width="4" height="16" fill="#228b22"/>
+  <rect x="338" y="440" width="4" height="4" fill="#fff"/>
+  <rect x="346" y="440" width="4" height="4" fill="#fff"/>
+  <rect x="342" y="436" width="4" height="4" fill="#fff"/>
+  <rect x="342" y="444" width="4" height="4" fill="#fff"/>
+  <rect x="342" y="440" width="4" height="4" fill="#ffd700"/>
+  <!-- F4 red -->
+  <rect x="458" y="448" width="4" height="16" fill="#228b22"/>
+  <rect x="454" y="440" width="4" height="4" fill="#ff4444"/>
+  <rect x="462" y="440" width="4" height="4" fill="#ff4444"/>
+  <rect x="458" y="436" width="4" height="4" fill="#ff4444"/>
+  <rect x="458" y="444" width="4" height="4" fill="#ff4444"/>
+  <rect x="458" y="440" width="4" height="4" fill="#ffcc00"/>
+  <!-- F5 pink -->
+  <rect x="522" y="448" width="4" height="16" fill="#228b22"/>
+  <rect x="518" y="440" width="4" height="4" fill="#ffc0d0"/>
+  <rect x="526" y="440" width="4" height="4" fill="#ffc0d0"/>
+  <rect x="522" y="436" width="4" height="4" fill="#ffc0d0"/>
+  <rect x="522" y="444" width="4" height="4" fill="#ffc0d0"/>
+  <rect x="522" y="440" width="4" height="4" fill="#ff69b4"/>
+  <!-- F6 yellow -->
+  <rect x="642" y="448" width="4" height="16" fill="#228b22"/>
+  <rect x="638" y="440" width="4" height="4" fill="#ffd700"/>
+  <rect x="646" y="440" width="4" height="4" fill="#ffd700"/>
+  <rect x="642" y="436" width="4" height="4" fill="#ffd700"/>
+  <rect x="642" y="444" width="4" height="4" fill="#ffd700"/>
+  <rect x="642" y="440" width="4" height="4" fill="#ff8c00"/>
+</svg>
+</div>
+
+<canvas id="gc"></canvas>
+
+<!-- ── DOM Screens ──────────────────────────────────── -->
+<div id="overlay">
+  <!-- INTRO -->
+  <div class="screen" id="sIntro">
+    <h1>🍄 Vương Quốc Nấm</h1>
+    <div class="sub">Mario STEM · Trạm Tin học</div>
+    <input id="iName"  type="text" placeholder="Họ và tên" maxlength="40" autocomplete="name">
+    <input id="iClass" type="text" placeholder="Lớp (VD: 7A1)" maxlength="20">
+    <button class="btn" onclick="G.startGame()">▶ BẮT ĐẦU</button>
+  </div>
+
+  <!-- WORLD SELECT -->
+  <div class="screen hidden" id="sWorld">
+    <h1>Chọn World</h1>
+    <div class="sub" id="sPlayerLbl"></div>
+    <div class="wgrid">
+      <div class="wcard" id="wc1" onclick="G.enterWorld(1)">
+        <div class="wi">🍄</div><h3>World 1</h3><p>Đồng cỏ Xanh</p>
+        <div class="ws" id="ws1"></div>
+      </div>
+      <div class="wcard" id="wc2" onclick="G.enterWorld(2)">
+        <div class="wi">🏰</div><h3>World 2</h3><p>Lâu đài Bowser</p>
+        <div class="ws" id="ws2"></div>
+      </div>
+      <div class="wcard" id="wc3" onclick="G.enterWorld(3)">
+        <div class="wi">⭐</div><h3>World 3</h3><p>Thiên hà Sao</p>
+        <div class="ws" id="ws3"></div>
+      </div>
+    </div>
+    <div id="allDoneRow" style="display:none">
+      <p style="color:#fbd000;font-size:.85rem;margin:.4rem 0">🌟 Hoàn thành cả 3 World!</p>
+      <button class="btn" onclick="G.showComplete()">▶ XEM MÃ KẾT QUẢ</button>
+    </div>
+  </div>
+
+  <!-- COMPLETION -->
+  <div class="screen hidden" id="sComplete">
+    <h1>⭐ Sao Vàng ⭐</h1>
+    <div class="sub" id="scName"></div>
+    <div class="sub">Trình mã này cho giáo viên:</div>
+    <div class="codebox" id="scCode">MS----</div>
+    <div class="phrase" id="scPhrase"></div>
+    <button class="btn btn-sec" onclick="G.goWorldSelect()">◀ Chọn màn khác</button>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="screen hidden" id="sGameOver">
+    <h1 style="color:#ff4444">GAME OVER</h1>
+    <button class="btn" onclick="G.retryWorld()" style="margin-top:.8rem">↺ Chơi lại</button>
+    <button class="btn btn-sec" onclick="G.goWorldSelect()">◀ Về trang chủ</button>
+  </div>
+</div>
+
+<!-- ── Question Popup ──────────────────────────────── -->
+<div id="qOverlay" class="hidden">
+  <div class="qbox">
+    <div class="qeyebrow" id="qEyebrow">Câu hỏi</div>
+    <div class="qtext"  id="qText"></div>
+
+    <!-- Budget UI (World 2) -->
+    <div class="budgetui" id="budgetUI">
+      <div id="budgetActions"></div>
+      <div class="bstatus" id="budgetStatus"></div>
+      <div class="bgoals" id="budgetGoals"></div>
+      <button class="btn" id="budgetCheckBtn" onclick="G.checkBudget()" style="margin-top:.5rem">Kiểm tra phương án</button>
+    </div>
+
+    <!-- Maze UI (World 2 zone B) -->
+    <div id="mazeUI" style="display:none;text-align:center">
+      <div class="mlegend">S = xuất phát · R = đích · 👾 = tường · Click ô liền kề để đi</div>
+      <div class="mazegrid" id="mazeGrid"></div>
+      <button class="btn" id="mazeClearBtn" onclick="G.mazeClear()" style="margin:.4rem .2rem">Làm lại</button>
+      <button class="btn" id="mazeCheckBtn" onclick="G.mazeCheck()">Kiểm tra đường đi</button>
+    </div>
+
+    <!-- Number input UI (World 2) -->
+    <div id="numUI" style="display:none">
+      <input type="number" id="numInput" inputmode="numeric" pattern="[0-9]*" placeholder="Nhập số...">
+      <button class="btn" id="numSubmit">Xác nhận</button>
+    </div>
+
+    <!-- Sort UI (World 3) -->
+    <div id="seqUI" style="display:none">
+      <div style="font-size:.75rem;color:#aaa;margin-bottom:.4rem">Kéo thả các bước vào đúng ô:</div>
+      <div id="sortSource" class="sort-source"></div>
+      <div id="sortSlots" class="sort-slots"></div>
+      <div style="display:flex;gap:.5rem;justify-content:center">
+        <button class="btn btn-sec" onclick="G.sortReset()">Reset</button>
+        <button class="btn" onclick="G.checkSort()">Xác nhận</button>
+      </div>
+    </div>
+
+    <div class="qopts" id="qOpts"></div>
+    <div class="qfb"  id="qFb"></div>
+  </div>
+</div>
+
+<!-- ── Mobile controls ───────────────────────────── -->
+<div id="mctrl">
+  <div class="mrow">
+    <button class="mbtn" id="mb_l" onpointerdown="G.mKey('ArrowLeft',true)"  onpointerup="G.mKey('ArrowLeft',false)"  ontouchend="G.mKey('ArrowLeft',false)">◀</button>
+    <button class="mbtn" id="mb_r" onpointerdown="G.mKey('ArrowRight',true)" onpointerup="G.mKey('ArrowRight',false)" ontouchend="G.mKey('ArrowRight',false)">▶</button>
+  </div>
+  <button class="mbtn" id="mb_u" onpointerdown="G.mKey('ArrowUp',true)" onpointerup="G.mKey('ArrowUp',false)" ontouchend="G.mKey('ArrowUp',false)">▲</button>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
